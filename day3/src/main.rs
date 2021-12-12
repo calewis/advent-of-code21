@@ -48,7 +48,7 @@ fn main() {
     for i in 0..12 {
         let (ones, zeros): (Vec<u16>, Vec<u16>) =
             co2.iter().partition(|n| (*n & (1 << (11 - i))) > 0);
-        if zeros.len() =< ones.len() {
+        if zeros.len() <= ones.len() {
             co2 = zeros;
         } else {
             co2 = ones;
