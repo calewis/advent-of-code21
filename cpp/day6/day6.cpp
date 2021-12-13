@@ -5,6 +5,7 @@
 #include <array>
 #include <fstream>
 #include <iostream>
+#include <numeric>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -18,9 +19,9 @@ auto parseFile(char const *file_name) {
                  [](char &c) { return c == ',' ? ' ' : c; });
 
   std::stringstream ss(line);
-  std::vector<int> out;
+  std::vector<std::uint8_t> out;
   int num = 0;
-  while(ss >> num){
+  while (ss >> num) {
     out.push_back(num);
   }
   return out;
@@ -30,20 +31,22 @@ int main(int _, char **argv) {
   auto fish = parseFile(argv[1]);
   fmt::print("Input: {}\n", fmt::join(fish, ","));
 
-  for(auto i = 0; i < 80; ++i){
-    auto needs_new = std::count(fish.begin(), fish.end(), 0);
-    for(auto &f : fish){
-      if(f == 0){
-        f = 6;
-      } else {
-        --f;
-      }
-    }
-
-    for(auto i = 0; i < needs_new; ++i){
-      fish.push_back(8);
-    }
+  std::array<std::size_t, 9> fish_counts = {};
+  for (auto f : fish) {
+    ++fish_counts[f];
   }
 
-  fmt::print("Fish on day 80: {}\n", fish.size());
+  fmt::print("Fish counts on day 0: {}\n", fmt::join(fish_counts, ","));
+
+  for (auto i = 0; i < 256; ++i) {
+    auto new_fish = fish_counts[0];
+    for (auto i = 1; i < 9; ++i) {
+      fish_counts[i - 1] = fish_counts[i];
+    }
+    fish_counts[6] += new_fish;
+    fish_counts[8] = new_fish;
+
+    auto sum = std::reduce(fish_counts.begin(), fish_counts.end(), 0UL);
+    fmt::print("Fish on day {}: {}\n", i + 1, sum);
+  }
 }
