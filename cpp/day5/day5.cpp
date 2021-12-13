@@ -15,7 +15,7 @@ struct Line {
 };
 
 std::ostream &operator<<(std::ostream &os, Line const &l) {
-  os << "[(" << l.x[0] << "," << l.x[1] << "),(" << l.y[0] << "," << l.y[1]
+  os << "[(" << l.y[0] << "," << l.x[0] << "),(" << l.y[1] << "," << l.x[1]
      << ")]";
   return os;
 }
@@ -69,24 +69,44 @@ int main(int _, char **argv) {
   M.setZero();
 
   for (auto const &l : input) {
-    if (l.x[0] != l.x[1] && l.y[0] != l.y[1]) {
-      continue;
-    }
-
     if (l.x[0] == l.x[1]) {
-      auto line = l.y;
-      std::sort(line.begin(), line.end());
       auto col = M.col(l.x[0]);
-      for (auto i = line[0]; i <= line[1]; ++i) {
+      auto y = l.y;
+      std::sort(y.begin(), y.end());
+      for (auto i = y[0]; i <= y[1]; ++i) {
         ++col(i);
       }
-    } else {
-      auto line = l.x;
-      std::sort(line.begin(), line.end());
+    } else if (l.y[0] == l.y[1]) {
       auto row = M.row(l.y[0]);
-      for (auto i = line[0]; i <= line[1]; ++i) {
+      auto x = l.x;
+      std::sort(x.begin(), x.end());
+      for (auto i = x[0]; i <= x[1]; ++i) {
         ++row(i);
       }
+    } else {
+      auto len = std::max(l.x[0], l.x[1]) - std::min(l.x[0], l.x[1]) + 1;
+      auto ymove = (l.y[0] < l.y[1]) ? 1 : -1;
+      auto xmove = (l.x[0] < l.x[1]) ? 1 : -1;
+      auto x = l.x[0];
+      auto y = l.y[0];
+      for (auto i = 0; i < len; ++i) {
+        ++M(y, x);
+        x += xmove;
+        y += ymove;
+      }
+    }
+  }
+
+  if (max_extent < 20) {
+    for(auto r = 0; r < max_extent + 1; ++r){
+      for(auto c = 0; c < max_extent + 1; ++c){
+        if(M(r,c) == 0){
+          std::cout << ". ";
+        } else {
+          std::cout << M(r,c) << " ";
+        }
+      }
+      std::cout << "\n";
     }
   }
 
