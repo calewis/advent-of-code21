@@ -97,6 +97,22 @@ auto findLow(auto const &m) {
   return out;
 }
 
+int discoverBasin(Eigen::MatrixXi &m, int i, int j) {
+  if (i < 0 || i >= m.rows() || j < 0 || j >= m.cols() || m(i, j) == 9) {
+    return 0; // Can't be here
+  }
+
+  if (m(i, j) == -1) { // Already been here
+    return 0;
+  }
+
+  m(i,j) = -1; // Been here
+
+  // The + 1 is so that we get credit for this node
+  return discoverBasin(m, i + 1, j) + discoverBasin(m, i - 1, j) +
+         discoverBasin(m, i, j + 1) + discoverBasin(m, i, j - 1) + 1;
+}
+
 int main(int _, char **argv) {
   auto M = parseFile(argv[1]);
   if (M.rows() < 11 && M.cols() < 11) {
@@ -116,4 +132,19 @@ int main(int _, char **argv) {
   }
 
   fmt::print("Sum of low points: {}\n", sum);
+
+  // for part two we need to do a search
+  Eigen::MatrixXi D = M;
+  std::vector<int> basins;
+  for(auto i = 0; i < D.rows(); ++i){
+    for(auto j = 0; j < D.cols(); ++j){
+      if(D(i,j) != 9 && D(i,j) != -1){
+        basins.push_back(discoverBasin(D, i, j));
+      }
+    }
+  }
+
+  std::sort(basins.begin(), basins.end(), std::greater<>{});
+  fmt::print("Basins: {}\n", fmt::join(basins, ","));
+  fmt::print("Prod of top 3: {}\n", basins[0] * basins[1] * basins[2]);
 }
