@@ -47,5 +47,19 @@ int main(int _, char **argv) {
     best = std::min(best, score);
   }
 
-  fmt::print("Best fuel usage: {}\n", best);
+  fmt::print("Part 1 best fuel usage: {}\n", best);
+
+  best = std::numeric_limits<std::size_t>::max();
+  for(auto i = *min_it; i <= *max_it; ++i){
+    auto score = 0UL;
+    for(auto c : crabs){
+      auto dist = (c > i) ? c - i : i - c;
+      // Sum of consecutive numbers is n(n+1)/2
+      score += dist*(dist+1)/2;
+    }
+    best = std::min(best, score);
+  }
+
+  fmt::print("Part 2 best fuel usage: {}\n", best);
+
 }
